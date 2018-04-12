@@ -1,12 +1,14 @@
 public with sharing class AccountTriggerHandler {
 
-    static Map<String, String> fieldSyncMap {
+    public static Map<String, String> fieldSyncMap {
         get {
             return new Map<String, String>{
-                    'BillingStreet'=>'MailingStreet',
-                    'BillingCity'=>'MailingCity',
-                    'BillingState'=>'MailingState',
-                    'BillingPostalCode'=>'MailingPostalCode'};
+                    'BillingStreet' => 'MailingStreet',
+                    'BillingCity' => 'MailingCity',
+                    'BillingState' => 'MailingState',
+                    'BillingPostalCode' => 'MailingPostalCode',
+                    'Phone' => 'Phone'
+            };
         }
     }
 
@@ -20,17 +22,20 @@ public with sharing class AccountTriggerHandler {
             }
         }
 
-        if(!accountAddressChangedMap.isEmpty()) {
+        if (!accountAddressChangedMap.isEmpty()) {
             syncAccountContactAddresses(accountAddressChangedMap);
         }
     }
 
     static void syncAccountContactAddresses(Map<Id, Account> accountAddressChangedMap) {
-        List<Contact> contactList = [
-                SELECT Id, MailingStreet, MailingCity, MailingState, MailingPostalCode, AccountId
-                FROM Contact
-                WHERE AccountId IN :accountAddressChangedMap.keySet()
-        ];
+        List<String> aIdList = new List<String>();
+        for(Id aId : accountAddressChangedMap.keySet()) {
+            aIdList.add(String.valueOf(aId));
+        }
+        String aIdListStr = '(\'' + String.join(aIdList, '\', \'') + '\')';
+        String q = 'SELECT Id, AccountId, ' + String.join(fieldSyncMap.values(), ', ') +
+                ' FROM Contact WHERE AccountId IN ' + aIdListStr;
+        List<Contact> contactList = (List<Contact>) Database.query(q);
 
         for (Contact c : contactList) {
             Account a = accountAddressChangedMap.get(c.AccountId);
