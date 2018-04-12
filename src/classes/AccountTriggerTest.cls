@@ -8,7 +8,8 @@ class AccountTriggerTest {
                 BillingStreet = '123 AccountTriggerTest',
                 BillingCity = 'Los Angeles',
                 BillingState = 'CA',
-                BillingPostalCode = '90210'
+                BillingPostalCode = '90210',
+                Phone = '555-111-2222'
         );
         insert a;
 
@@ -19,7 +20,8 @@ class AccountTriggerTest {
                 MailingStreet = '123 AccountTriggerTest',
                 MailingCity = 'Los Angeles',
                 MailingState = 'CA',
-                MailingPostalCode = '90210'
+                MailingPostalCode = '90210',
+                Phone = '555-111-2222'
         );
         insert c;
     }
@@ -37,11 +39,12 @@ class AccountTriggerTest {
         a.BillingCity = 'Cawker';
         a.BillingState = 'KS';
         a.BillingPostalCode = '67430';
+        a.Phone = '555-222-3333';
         update a;
         Test.stopTest();
 
         Contact c = [
-                SELECT Id, MailingStreet, MailingCity, MailingState, MailingPostalCode
+                SELECT Id, MailingStreet, MailingCity, MailingState, MailingPostalCode, Phone
                 FROM Contact
                 WHERE AccountId = :a.Id
                 LIMIT 1
@@ -51,6 +54,7 @@ class AccountTriggerTest {
         System.assertEquals(a.BillingCity, c.MailingCity);
         System.assertEquals(a.BillingState, c.MailingState);
         System.assertEquals(a.BillingPostalCode, c.MailingPostalCode);
+        System.assertEquals(a.Phone, c.Phone);
 
     }
 }
